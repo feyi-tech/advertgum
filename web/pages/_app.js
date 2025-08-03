@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
-import '@/styles/globals.css'
-import { ChakraProvider } from '@chakra-ui/react'
-import { AuthProvider } from '../context/AuthContext'
+import { ChakraProvider } from '@chakra-ui/react';
+import { AuthProvider } from '../context/AuthContext';
+import customTheme from '../theme';
+import Head from 'next/head';
 
-export default function App({ Component, pageProps }) {
+function App({ Component, pageProps }) {
   useEffect(() => {
     const handleReferral = async () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -29,10 +30,20 @@ export default function App({ Component, pageProps }) {
   }, []);
 
   return (
-    <ChakraProvider>
-      <AuthProvider>
-        <Component {...pageProps} />
-      </AuthProvider>
-    </ChakraProvider>
-  )
+    <>
+      <Head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
+      <ChakraProvider theme={customTheme}>
+        <AuthProvider>
+          <Component {...pageProps} />
+        </AuthProvider>
+      </ChakraProvider>
+    </>
+  );
 }
+
+export default App;

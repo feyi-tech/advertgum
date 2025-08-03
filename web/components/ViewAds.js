@@ -11,6 +11,8 @@ import {
   useToast,
   Input,
   Spinner,
+  Skeleton,
+  Stack,
 } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
 
@@ -77,7 +79,13 @@ const ViewAds = () => {
         <Button onClick={() => setStatus('upcoming')} colorScheme={status === 'upcoming' ? 'teal' : 'gray'} ml={2}>Upcoming</Button>
         <Button onClick={() => setStatus('expired')} colorScheme={status === 'expired' ? 'teal' : 'gray'} ml={2}>Expired</Button>
       </Flex>
-      {loading ? <Spinner /> : (
+      {loading ? (
+        <Stack>
+          <Skeleton height="150px" />
+          <Skeleton height="150px" />
+          <Skeleton height="150px" />
+        </Stack>
+      ) : (
         <VStack spacing={4} align="stretch">
           {ads.map(ad => (
             <Box key={ad.id} p={5} shadow="md" borderWidth="1px">

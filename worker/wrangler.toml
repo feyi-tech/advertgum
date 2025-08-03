@@ -5,6 +5,10 @@ compatibility_date = "2023-10-30"
 [vars]
 BUCKET_NAME = "advertgum_bucket"
 
+# Secrets should be added via `npx wrangler secret put <KEY>`
+# Example: npx wrangler secret put TURNSTILE_SECRET_KEY
+# TURNSTILE_SECRET_KEY = ""
+
 [[d1_databases]]
 binding = "DB"
 database_name = "advertgum_db"

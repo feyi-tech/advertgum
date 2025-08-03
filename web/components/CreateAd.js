@@ -9,6 +9,7 @@ import {
   VStack,
   useToast,
   Heading,
+  Select,
 } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
 
@@ -66,6 +67,8 @@ const CreateAd = () => {
         prize3: parseFloat(formData.get('prize3')),
         prize4: parseFloat(formData.get('prize4')),
         minClicks: parseInt(formData.get('minClicks')),
+        destinationUrl: formData.get('destinationUrl'),
+        ctaText: formData.get('ctaText'),
         imageKeys,
       };
 
@@ -99,6 +102,17 @@ const CreateAd = () => {
         <FormControl isRequired><FormLabel>3rd Prize</FormLabel><Input name="prize3" type="number" /></FormControl>
         <FormControl isRequired><FormLabel>Shared Prize Pool</FormLabel><Input name="prize4" type="number" /></FormControl>
         <FormControl isRequired><FormLabel>Min Clicks for Shared Prize</FormLabel><Input name="minClicks" type="number" /></FormControl>
+        <FormControl isRequired><FormLabel>Destination URL</FormLabel><Input name="destinationUrl" type="url" /></FormControl>
+        <FormControl isRequired>
+          <FormLabel>Call to Action Text</FormLabel>
+          <Select name="ctaText" placeholder="Select a call to action">
+            <option value="Learn More">Learn More</option>
+            <option value="Shop Now">Shop Now</option>
+            <option value="Sign Up">Sign Up</option>
+            <option value="View Profile">View Profile</option>
+            <option value="Get Offer">Get Offer</option>
+          </Select>
+        </FormControl>
         <FormControl isRequired><FormLabel>Images (up to 3)</FormLabel><Input type="file" accept="image/*" multiple onChange={handleImageChange} p={1} /></FormControl>
         <Button type="submit" colorScheme="teal" isLoading={isSubmitting} isDisabled={images.length === 0}>Create Ad</Button>
       </VStack>
