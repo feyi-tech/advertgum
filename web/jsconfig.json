@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/root/*": ["./*"],
+      "@/*": ["./*"],
+      "@/compos/*": ["./components/*"],
+      "@/styles/*": ["./styles/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"  
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
