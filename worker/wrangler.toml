@@ -1,0 +1,16 @@
+name = "advertgum-worker"
+main = "src/index.js"
+compatibility_date = "2023-10-30"
+
+[vars]
+BUCKET_NAME = "advertgum_bucket"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "advertgum_db"
+database_id = ""
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "advertgum_bucket"
+preview_bucket_name = "advertgum_bucket_preview"
