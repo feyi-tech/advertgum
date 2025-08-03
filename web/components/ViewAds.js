@@ -13,6 +13,10 @@ import {
   Spinner,
   Skeleton,
   Stack,
+  Select,
+  NumberInput,
+  NumberInputField,
+  ButtonGroup,
 } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
 
@@ -25,14 +29,23 @@ const ViewAds = () => {
   const toast = useToast();
   const [ads, setAds] = useState([]);
   const [status, setStatus] = useState('active');
+  const [category, setCategory] = useState('');
+  const [minPrize, setMinPrize] = useState('');
+  const [maxPrize, setMaxPrize] = useState('');
   const [loading, setLoading] = useState(false);
   const [referralLinks, setReferralLinks] = useState({});
 
   useEffect(() => {
     const fetchAds = async () => {
       setLoading(true);
+      const params = new URLSearchParams({
+        status,
+        category,
+        minPrize1: minPrize,
+        maxPrize1: maxPrize,
+      });
       try {
-        const res = await fetch(`/api/adverts?status=${status}`);
+        const res = await fetch(`/api/adverts?${params.toString()}`);
         const data = await res.json();
         setAds(data);
       } catch (error) {
@@ -42,7 +55,7 @@ const ViewAds = () => {
       }
     };
     fetchAds();
-  }, [status, toast]);
+  }, [status, category, minPrize, maxPrize, toast]);
 
   const handleGetLink = async (advertId) => {
     const token = await user.getIdToken();
@@ -74,11 +87,27 @@ const ViewAds = () => {
 
   return (
     <Box>
-      <Flex mb={4}>
-        <Button onClick={() => setStatus('active')} colorScheme={status === 'active' ? 'teal' : 'gray'}>Active</Button>
-        <Button onClick={() => setStatus('upcoming')} colorScheme={status === 'upcoming' ? 'teal' : 'gray'} ml={2}>Upcoming</Button>
-        <Button onClick={() => setStatus('expired')} colorScheme={status === 'expired' ? 'teal' : 'gray'} ml={2}>Expired</Button>
-      </Flex>
+      <Stack spacing={4} mb={8} direction={{ base: 'column', md: 'row' }}>
+        <ButtonGroup isAttached variant="outline">
+          <Button onClick={() => setStatus('active')} isActive={status === 'active'}>Active</Button>
+          <Button onClick={() => setStatus('upcoming')} isActive={status === 'upcoming'}>Upcoming</Button>
+          <Button onClick={() => setStatus('expired')} isActive={status === 'expired'}>Expired</Button>
+        </ButtonGroup>
+        <Select placeholder="All Categories" onChange={(e) => setCategory(e.target.value)}>
+          <option value="E-commerce">E-commerce</option>
+          <option value="SaaS">SaaS</option>
+          <option value="Fintech">Fintech</option>
+          <option value="Music">Music</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Other">Other</option>
+        </Select>
+        <NumberInput value={minPrize} onChange={(value) => setMinPrize(value)} placeholder="Min 1st Prize">
+          <NumberInputField />
+        </NumberInput>
+        <NumberInput value={maxPrize} onChange={(value) => setMaxPrize(value)} placeholder="Max 1st Prize">
+          <NumberInputField />
+        </NumberInput>
+      </Stack>
       {loading ? (
         <Stack>
           <Skeleton height="150px" />

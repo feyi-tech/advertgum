@@ -51,6 +51,16 @@ export default function Home() {
         </Stack>
       </Container>
 
+      {/* Promoter Section */}
+      <Box p={8} bg="gray.50">
+        <Stack spacing={4} as={Container} maxW={'3xl'} textAlign={'center'}>
+          <Heading fontSize={'3xl'}>Earn Money by Sharing</Heading>
+          <Text color={'gray.600'} fontSize={'xl'}>
+            No registration fees, no hidden costs. Simply find an ad you like, get your unique link, and share it on your social media, blog, or status. You earn real cash for every verified click you generate. It's that simple.
+          </Text>
+        </Stack>
+      </Box>
+
       {/* Featured Ads Section Placeholder */}
       <Box id="featured" p={8}>
         <Heading textAlign={'center'} mb={8}>Featured Ad Campaigns</Heading>
@@ -58,6 +68,21 @@ export default function Home() {
         <Flex justify="center">
           <Text color="gray.500">Featured ads will be displayed here.</Text>
         </Flex>
+      </Box>
+
+      {/* Advertiser Section */}
+      <Box p={8} bg="gray.50">
+         <Stack spacing={4} as={Container} maxW={'3xl'} textAlign={'center'}>
+          <Heading fontSize={'3xl'}>For Advertisers</Heading>
+          <Text color={'gray.600'} fontSize={'xl'}>
+            Tired of paying for ads that don't work? Get real, verified traffic and pay only for performance. Our platform connects you with motivated promoters ready to share your brand.
+          </Text>
+           <NextLink href="/advertisers" passHref>
+              <Button rounded={'full'} px={6}>
+                Learn More
+              </Button>
+            </NextLink>
+        </Stack>
       </Box>
     </Layout>
   );

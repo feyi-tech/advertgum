@@ -7,19 +7,26 @@ import {
   VStack,
   useToast,
 } from '@chakra-ui/react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../lib/firebaseConfig';
 
 const Register = () => {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
   const handleRegister = async () => {
+    if (!fullName) {
+        toast({ title: 'Full name is required.', status: 'error', duration: 5000, isClosable: true });
+        return;
+    }
     setIsLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: fullName });
+
       toast({
         title: 'Account created.',
         description: "We've created your account for you.",
@@ -43,6 +50,14 @@ const Register = () => {
   return (
     <VStack spacing={4}>
       <FormControl isRequired>
+        <FormLabel>Full Name</FormLabel>
+        <Input
+          type="text"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+        />
+      </FormControl>
+      <FormControl isRequired>
         <FormLabel>Email address</FormLabel>
         <Input
           type="email"
@@ -59,7 +74,7 @@ const Register = () => {
         />
       </FormControl>
       <Button
-        colorScheme="teal"
+        colorScheme="brand"
         onClick={handleRegister}
         isLoading={isLoading}
         isFullWidth
