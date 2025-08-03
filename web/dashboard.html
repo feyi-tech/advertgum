@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GoalCards - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="/res/css/all.css?v=3" rel="stylesheet" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/res/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/res/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/res/favicon-16x16.png">
+  <link rel="manifest" href="/res/site.webmanifest">
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <!-- Navigation -->
+  <header class="shadow-md py-4 px-6 bg-white">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <a href="/">
+        <h1 class="text-xl font-bold text-indigo-600" style="display: none;">GoalCards</h1>
+        <img src="/res/logo.png" class="nav-logo" />
+      </a>
+      <button id="menu-toggler" class="md:hidden text-gray-700 focus:outline-none">
+        <svg style="pointer-events: none;" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <nav id="menu" class="hidden md:flex space-x-6 items-center">
+        <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
+        <a href="/about" class="text-gray-600 hover:text-indigo-600">About</a>
+      </nav>
+    </div>
+    <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 space-y-2">
+        <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
+        <a href="/about" class="text-gray-600 hover:text-indigo-600">About</a>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="flex-grow container mx-auto px-6 pt-6 pb-12 max-w-6xl">
+
+    <!-- KYC ERROR -->
+    <section class="pt-6 px-6 max-w-7xl mx-auto">
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-md shadow-md max-w-3xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+        <div class="text-yellow-900 font-semibold text-lg">
+          ⚠️ Please upgrade your account by completing your KYC so you can create goal cards and purchase goal cards.
+        </div>
+        <div class="text-right">
+          <button
+            onclick="window.location.href='/kyc'"
+            class="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-2 px-5 rounded shadow-md transition"
+            >
+            Complete KYC
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- User Name Display - BIG, BOLD, top-left, above content -->
+    <section class="pt-6 px-6 max-w-7xl mx-auto">
+        <h2 class="text-4xl font-extrabold text-indigo-700 mb-8">Welcome, <span id="username">...</span>!</h2>
+    </section>
+
+    <!-- Earnings & Balance -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+      
+      <!-- Earnings -->
+      <div class="bg-white rounded-lg shadow p-6 flex flex-col justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="p-3 bg-yellow-100 rounded-full">
+            <!-- Coin Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" />
+              <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 12h8M12 8v8" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-500">Earnings</p>
+            <p class="text-3xl font-bold text-gray-900">₦0.00</p>
+          </div>
+        </div>
+        <button id="withdraw" class="mt-6 self-start bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2 rounded-lg font-semibold transition">
+          Withdraw
+        </button>
+      </div>
+
+      <!-- Balance -->
+      <div class="bg-white rounded-lg shadow p-6 flex flex-col justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="p-3 bg-indigo-100 rounded-full">
+            <!-- Wallet Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" d="M5 8h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z"/>
+              <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" d="M12 12v4m0-4h4m-4 0H8"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-500">Balance</p>
+            <p class="text-3xl font-bold text-gray-900">₦0.00</p>
+          </div>
+        </div>
+        <button id="fundwallet" class="mt-6 self-start bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-semibold transition">
+          Fund Wallet
+        </button>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <section>
+      <nav class="flex border-b border-gray-300 mb-6" role="tablist">
+        <button
+          class="py-3 px-6 text-indigo-600 border-b-2 border-indigo-600 font-semibold focus:outline-none"
+          id="created-tab"
+          role="tab"
+          aria-selected="true"
+          aria-controls="created"
+          tabindex="0"
+          >Created Packs</button
+        >
+        <button
+          class="py-3 px-6 text-gray-600 hover:text-indigo-600 border-b-2 border-transparent focus:outline-none"
+          id="purchased-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="purchased"
+          tabindex="-1"
+          >Purchased Packs</button
+        >
+        <button
+          class="py-3 px-6 text-gray-600 hover:text-indigo-600 border-b-2 border-transparent focus:outline-none"
+          id="favorites-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="favorites"
+          tabindex="-1"
+          >Favorites</button
+        >
+      </nav>
+
+      <!-- Tab Panels -->
+      <div id="created" role="tabpanel" aria-labelledby="created-tab">
+        <div style="display: none;" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Sample Created Pack Cards -->
+          <div class="bg-white rounded-lg shadow p-4 hover:shadow-lg cursor-pointer transition">
+            <h4 class="font-semibold text-lg text-indigo-600 mb-1">Build a Morning Routine</h4>
+            <p class="text-gray-600 text-sm mb-2">Create healthy habits with daily step cards.</p>
+            <div class="flex items-center justify-between text-yellow-500 font-semibold">
+              <span>⭐ 4.8</span>
+              <span class="text-gray-500 text-xs">1.2k reviews</span>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow p-4 hover:shadow-lg cursor-pointer transition">
+            <h4 class="font-semibold text-lg text-indigo-600 mb-1">Learn Spanish Basics</h4>
+            <p class="text-gray-600 text-sm mb-2">Step-by-step learning pack for beginners.</p>
+            <div class="flex items-center justify-between text-yellow-500 font-semibold">
+              <span>⭐ 4.5</span>
+              <span class="text-gray-500 text-xs">980 reviews</span>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow p-4 hover:shadow-lg cursor-pointer transition">
+            <h4 class="font-semibold text-lg text-indigo-600 mb-1">Start Freelancing</h4>
+            <p class="text-gray-600 text-sm mb-2">Essential steps to launch your freelancing career.</p>
+            <div class="flex items-center justify-between text-yellow-500 font-semibold">
+              <span>⭐ 4.7</span>
+              <span class="text-gray-500 text-xs">1.5k reviews</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="purchased" class="hidden" role="tabpanel" aria-labelledby="purchased-tab">
+        <div style="display: none;" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Sample Purchased Pack Cards -->
+          <div class="bg-white rounded-lg shadow p-4 hover:shadow-lg cursor-pointer transition">
+            <h4 class="font-semibold text-lg text-indigo-600 mb-1">Meditation for Beginners</h4>
+            <p class="text-gray-600 text-sm mb-2">A calming pack to start your meditation journey.</p>
+            <div class="flex items-center justify-between text-yellow-500 font-semibold">
+              <span>⭐ 4.9</span>
+              <span class="text-gray-500 text-xs">2k reviews</span>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow p-4 hover:shadow-lg cursor-pointer transition">
+            <h4 class="font-semibold text-lg text-indigo-600 mb-1">Fitness Starter Pack</h4>
+            <p class="text-gray-600 text-sm mb-2">Build strength and endurance in 30 days.</p>
+            <div class="flex items-center justify-between text-yellow-500 font-semibold">
+              <span>⭐ 4.6</span>
+              <span class="text-gray-500 text-xs">1.3k reviews</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="favorites" class="hidden" role="tabpanel" aria-labelledby="favorites-tab">
+        <div style="display: none;" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Sample Favorites Pack Cards -->
+          <div class="bg-white rounded-lg shadow p-4 hover:shadow-lg cursor-pointer transition">
+            <h4 class="font-semibold text-lg text-indigo-600 mb-1">Time Management Mastery</h4>
+            <p class="text-gray-600 text-sm mb-2">Optimize your day with proven strategies.</p>
+            <div class="flex items-center justify-between text-yellow-500 font-semibold">
+              <span>⭐ 4.8</span>
+              <span class="text-gray-500 text-xs">1.1k reviews</span>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow p-4 hover:shadow-lg cursor-pointer transition">
+            <h4 class="font-semibold text-lg text-indigo-600 mb-1">Healthy Eating</h4>
+            <p class="text-gray-600 text-sm mb-2">Simple steps for a balanced diet.</p>
+            <div class="flex items-center justify-between text-yellow-500 font-semibold">
+              <span>⭐ 4.7</span>
+              <span class="text-gray-500 text-xs">900 reviews</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-white text-center py-4 text-gray-500 text-sm mt-auto">
+    &copy; 2025 GoalCards. All rights reserved.
+  </footer>
+
+  <script>
+    // Tabs logic
+    const tabs = document.querySelectorAll('[role="tab"]');
+    const tabPanels = document.querySelectorAll('[role="tabpanel"]');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Deselect all tabs
+        tabs.forEach(t => {
+          t.setAttribute('aria-selected', false);
+          t.classList.remove('border-indigo-600', 'text-indigo-600', 'font-semibold');
+          t.classList.add('text-gray-600');
+          t.classList.remove('focus:outline-none');
+          t.setAttribute('tabindex', '-1');
+        });
+
+        // Hide all panels
+        tabPanels.forEach(panel => {
+          panel.classList.add('hidden');
+        });
+
+        // Select clicked tab
+        tab.setAttribute('aria-selected', true);
+        tab.classList.add('border-indigo-600', 'text-indigo-600', 'font-semibold');
+        tab.classList.remove('text-gray-600');
+        tab.removeAttribute('tabindex');
+        tabPanels.forEach(panel => {
+          if (panel.id === tab.getAttribute('aria-controls')) {
+            panel.classList.remove('hidden');
+          }
+        });
+      });
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/res/js/auth-menu.js" type="module"></script>
+  <script src="/res/js/dashboard.js" type="module"></script>
+</body>
+</html>

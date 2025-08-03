@@ -1,0 +1,109 @@
+<!-- MVP Pages for GoalCards -->
+<!-- Using Tailwind CSS for styling -->
+<!-- Page: create-pack.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Goal Pack - GoalCards</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="/res/css/all.css?v=3" rel="stylesheet" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/res/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/res/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/res/favicon-16x16.png">
+  <link rel="manifest" href="/res/site.webmanifest">
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+  <!-- Navigation -->
+  <header class="shadow-md py-4 px-6 bg-white">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <a href="/">
+        <h1 class="text-xl font-bold text-indigo-600" style="display: none;">GoalCards</h1>
+        <img src="/res/logo.png" class="nav-logo" />
+      </a>
+      <button id="menu-toggler" class="md:hidden text-gray-700 focus:outline-none">
+        <svg style="pointer-events: none;" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <nav id="menu" class="hidden md:flex space-x-6 items-center">
+        <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
+        <a href="/about" class="text-gray-600 hover:text-indigo-600">About</a>
+      </nav>
+    </div>
+    <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 space-y-2">
+        <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
+        <a href="/about" class="text-gray-600 hover:text-indigo-600">About</a>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto mt-10 px-6">
+    <h2 class="text-3xl font-bold mb-6">Create a New Goal Pack</h2>
+
+    <form id="goalPackForm" class="space-y-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Pack Title</label>
+        <input type="text" name="packTitle" placeholder="e.g. Make $1000 in 30 Days" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm" required>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Pack Description</label>
+        <textarea name="packDescription" placeholder="What will this card pack help someone achieve?" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm" rows="4" required></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Price (Naira)</label>
+        <input type="number" name="price" min="0" step="0.01" placeholder="e.g. 5000" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm" required>
+      </div>
+
+      <div>
+        <label id="totalCards" class="block text-sm font-medium text-gray-700">Cards</label>
+        <div class="space-y-4 mt-4" style="overflow-y: auto;">
+          <div id="cardsContainer" class="p-2" style="max-height: 700px;"></div>
+        </div>
+          <!-- Cards will be added here -->
+        </div>
+        <button type="button" onclick="addCard()" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">+ Add Card</button>
+      </div>
+
+      <div class="w-100 flex justify-end align-middle">
+        <button id="save-pack" type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-700 mr-4">Save Goal Pack</button>
+        <button id="publish-pack" type="submit" class="bg-green-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-green-700">Publish Goal Pack</button>
+      </div>
+    </form>
+  </main>
+
+  <footer class="py-8 text-center text-sm text-gray-500 mt-10">
+    © 2025 GoalCards. All rights reserved.
+  </footer>
+
+  <script>
+    function addCard() {
+      const container = document.getElementById('cardsContainer');
+
+      const card = document.createElement('div');
+      card.className = 'bg-white shadow rounded-lg p-4 border border-gray-200 mb-4';
+      card.innerHTML = `
+        <div class="mb-2">
+          <label class="block text-sm font-medium text-gray-700">Card Title</label>
+          <input type="text" name="cardTitle[]" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Card Description</label>
+          <textarea name="cardDescription[]" rows="4" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm resize-y" required></textarea>
+        </div>
+      `;
+
+
+      container.appendChild(card);
+      document.querySelector("#totalCards").textContent = `Cards (${container.children.length})`
+    }
+
+    // Add one card by default
+    window.onload = () => addCard();
+  </script>
+  <script src="/res/js/auth-menu.js" type="module"></script>
+  <script src="/res/js/create-pack.js" type="module"></script>
+</body>
+</html>

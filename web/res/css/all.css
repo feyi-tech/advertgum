@@ -1,0 +1,45 @@
+/* Prevent horizontal scroll and overflow */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* This hides horizontal scrollbar */
+  width: 100%;
+}
+
+/* Optional: Prevent child elements from overflowing */
+* {
+  box-sizing: border-box; /* Ensures padding/border don't overflow width */
+  max-width: 100vw;        /* Prevents elements from stretching past screen */
+}
+
+button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}/*
+header {
+    box-shadow: 0 0px 12px rgba(0, 0, 0, 0.1) !important;
+}*/
+#mobileMenu {
+    position: absolute;
+    padding-top: 1rem;
+    min-width: 250px;
+    background: white;
+    right: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem; /* optional, for a softer look */
+    z-index: 50; /* optional, to ensure it appears above other elements */
+}
+#mobileMenu a {
+    display: block;
+}
+.field-helper {
+    font-size: 13px; color: #555;
+}
+.file-name {
+    font-size: 13px; color: #333; font-weight: 600;
+}
+
+.nav-logo {
+    width: 50px;
+    height: 50px;
+}

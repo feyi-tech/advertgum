@@ -1,0 +1,183 @@
+<!-- MVP Landing Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Make Payment</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <link href="/res/css/all.css?v=3" rel="stylesheet" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/res/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/res/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/res/favicon-16x16.png">
+  <link rel="manifest" href="/res/site.webmanifest">
+  <script src="https://unpkg.com/@fincra-engineering/checkout@2.2.0/dist/inline.min.js"></script>
+</head>
+<body class="bg-white text-gray-800">
+  <!-- Navigation -->
+  <header class="shadow-md py-4 px-6 bg-white">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <a href="/">
+        <h1 class="text-xl font-bold text-indigo-600" style="display: none;">GoalCards</h1>
+        <img src="/res/logo.png" class="nav-logo" />
+      </a>
+      <button id="menu-toggler" class="md:hidden text-gray-700 focus:outline-none">
+        <svg style="pointer-events: none;" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <nav id="menu" class="hidden md:flex space-x-6 items-center">
+        <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
+        <a href="/about" class="text-gray-600 hover:text-indigo-600">About</a>
+      </nav>
+    </div>
+    <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 space-y-2">
+        <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
+        <a href="/about" class="text-gray-600 hover:text-indigo-600">About</a>
+    </div>
+  </header>
+
+  <!-- Payment Retry Button -->
+  <div class="flex justify-center mt-10">
+    <button id="retryBtn" onclick="openPayment()" class="hidden bg-indigo-600 text-white px-6 py-3 rounded-lg shadow hover:bg-indigo-700 transition duration-200">
+      Make Payment
+    </button>
+  </div>
+  
+  <script>
+    let handler = null;
+    let query, name, amount, email, ref, token;
+
+    function openPayment() {
+      if (!handler) return;
+
+      handler.openIframe();
+    }
+
+    window.onload = function () {
+      query = new URLSearchParams(window.location.search);
+      name = query.get("name");
+      amount = query.get("amount");
+      email = query.get("email");
+      token = query.get("token");
+
+      if (!amount || isNaN(amount) || !email || !token || !name || name.length == 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Missing Info',
+          text: 'Missing or invalid amount, name, email, or token in the URL.',
+        });
+        return;
+      }
+
+      name = decodeURIComponent(name)
+      amount = Number(amount)
+
+      handler = {
+        openIframe: () => {
+          showSpinner();
+          Fincra.initialize({
+            key: "pk_Njg0YzdjYTI2NjgxNTkwMDExNTQxZDJjOjoyMDYyMjg=",
+            amount: amount,
+            currency: "NGN",
+            customer: {
+                name: name,
+                email: email,
+                //phoneNumber: document.getElementById("phoneNumber").value,
+              },
+            //Kindly chose the bearer of the fees
+            feeBearer: "business",// || "customer",
+    
+            onClose: function () {
+              Swal.fire({
+                icon: 'info',
+                title: 'Payment Cancelled',
+                text: 'You closed the payment window.',
+              });
+              document.getElementById("retryBtn").classList.remove("hidden");
+              hideSpinner();
+            },
+            onSuccess: function (data) {
+                //console.log("Payment complete: ", data)
+                
+                fetch(`https://us-central1-paybulous.cloudfunctions.net/api/log_fincra_deposit`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `${token}`
+                  },
+                  body: JSON.stringify({ 
+                    payment_reference: data.reference,
+                    amount: data.amount,
+                    currency: data.currency 
+                  })
+                })
+                .then(res => {
+                  if (!res.ok) throw new Error("Server error");
+                  return res.json();
+                })
+                .then(() => {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Payment Successful!',
+                    text: 'Your payment was received and it will be confirmed shortly.',
+                    confirmButtonText: 'OK'
+                  }).then(() => {
+                    // Go back to previous page or site
+                    if (document.referrer) {
+                      window.location.href = document.referrer;
+                    } else {
+                      window.history.back();
+                    }
+                  });
+                })
+                .catch(error => {
+                  console.error("Post-payment error:", error);
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Failed to verify payment',
+                    text: 'We could not complete verification on the server.',
+                  })
+                  .then(() => {
+                    // Go back to previous page or site
+                    if (document.referrer) {
+                      window.location.href = document.referrer;
+                    } else {
+                      window.history.back();
+                    }
+                  });
+                });
+              },
+          });
+        }
+      }
+
+      handler.openIframe();
+    }
+  </script>
+  <script src="/res/js/auth-menu.js" type="module"></script>
+  <!-- Loading Spinner -->
+  <div id="loadingSpinner" class="fixed inset-0 flex items-center justify-center bg-white z-50">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
+  </div>
+  <script>
+  // Hide spinner after a delay or once iframe loads
+  function hideSpinner() {
+    const spinner = document.getElementById("loadingSpinner");
+    if (spinner) {
+      spinner.style.display = "none";
+    }
+  }
+  
+  // Hide spinner after a delay or once iframe loads
+  function showSpinner() {
+    const spinner = document.getElementById("loadingSpinner");
+    if (spinner) {
+      spinner.style.display = "flex";
+    }
+  }
+</script>
+</body>
+</html>

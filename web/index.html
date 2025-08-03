@@ -1,0 +1,93 @@
+<!-- MVP Landing Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoalCards - Turn Goals Into Actionable Cards</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="/res/css/all.css?v=3" rel="stylesheet" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/res/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/res/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/res/favicon-16x16.png">
+  <link rel="manifest" href="/res/site.webmanifest">
+</head>
+<body class="bg-white text-gray-800">
+  <!-- Navigation -->
+  <header class="shadow-md py-4 px-6 bg-white">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <a href="/">
+        <h1 class="text-xl font-bold text-indigo-600" style="display: none;">GoalCards</h1>
+        <img src="/res/logo.png" class="nav-logo" />
+      </a>
+      <button id="menu-toggler" class="md:hidden text-gray-700 focus:outline-none">
+        <svg style="pointer-events: none;" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <nav id="menu" class="hidden md:flex space-x-6 items-center">
+        <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
+        <a href="/about" class="text-gray-600 hover:text-indigo-600">About</a>
+      </nav>
+    </div>
+    <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 space-y-2">
+        <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
+        <a href="/about" class="text-gray-600 hover:text-indigo-600">About</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="text-center py-20 bg-indigo-50">
+    <div class="max-w-2xl mx-auto px-6">
+      <h2 class="text-4xl font-bold mb-4">Turn Your Goals Into Actionable Cards</h2>
+      <p class="text-gray-700 text-lg mb-6">Create or buy goal-driven card packs to stay focused, motivated, and on track—one card at a time.</p>
+      <a href="/create-pack" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700">Create a Card Pack</a>
+    </div>
+  </section>
+
+  <!-- Featured Packs -->
+  <section class="py-16 px-6 max-w-7xl mx-auto">
+    <h3 class="text-2xl font-semibold text-center mb-10">Featured Goal Packs</h3>
+    <div id="packsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Packs will be inserted here dynamically -->
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8" style="display: none;">
+      <div class="border p-6 rounded-lg shadow-sm">
+        <h4 class="text-xl font-semibold mb-2">Make $1000 in 30 Days</h4>
+        <p class="text-gray-600 mb-4">A 30-card journey to help you earn $1000 from scratch.</p>
+        <button class="text-indigo-600 font-medium">Preview Pack</button>
+      </div>
+      <div class="border p-6 rounded-lg shadow-sm">
+        <h4 class="text-xl font-semibold mb-2">Build a Daily Routine</h4>
+        <p class="text-gray-600 mb-4">Form powerful habits in 21 days with step-by-step cards.</p>
+        <button class="text-indigo-600 font-medium">Preview Pack</button>
+      </div>
+      <div class="border p-6 rounded-lg shadow-sm">
+        <h4 class="text-xl font-semibold mb-2">Start a YouTube Channel</h4>
+        <p class="text-gray-600 mb-4">Everything you need to launch your YouTube journey.</p>
+        <button class="text-indigo-600 font-medium">Preview Pack</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Creator Call to Action -->
+  <section class="bg-indigo-600 text-white text-center py-20 px-4">
+    <h3 class="text-3xl font-bold mb-4">Got a Goal Formula?</h3>
+    <p class="mb-6 text-lg">Turn your steps into a goal card pack and sell it to help others.</p>
+    <a href="/create-pack" class="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-100">Start Creating</a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-8 text-center text-sm text-gray-500">
+    © 2025 GoalCards. All rights reserved.
+  </footer>
+  <script src="/res/js/auth-menu.js" type="module"></script>
+  <script src="/res/js/packs.js"></script>
+  <script src="/res/js/renderCards.js"></script>
+  <script>
+    renderPacks(packs.slice(0, 3))
+  </script>
+</body>
+</html>
