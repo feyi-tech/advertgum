@@ -1,0 +1,9 @@
+# These are variables for local development with `wrangler dev`.
+# For production, these should be set as secrets using the wrangler CLI.
+# Example: `npx wrangler secret put TURNSTILE_SECRET_KEY`
+
+# The secret key for your Cloudflare Turnstile site.
+TURNSTILE_SECRET_KEY = "YOUR_TURNSTILE_SECRET_KEY"
+
+# Your Firebase Project ID, used for JWT verification.
+FIREBASE_PROJECT_ID = "YOUR_FIREBASE_PROJECT_ID"

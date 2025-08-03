@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Layout from '../components/Layout';
 import ViewAds from '../components/ViewAds';
 import MyParticipations from '../components/MyParticipations';
+import MyCreatedAds from '../components/MyCreatedAds';
 import { useAuth } from '../context/AuthContext';
 import { Box, Heading, Text, Tabs, TabList, Tab, TabPanels, TabPanel, SimpleGrid } from '@chakra-ui/react';
 import Login from '../components/Login';
@@ -59,10 +60,12 @@ export default function Dashboard() {
           <TabList>
             <Tab>Browse All Ads</Tab>
             <Tab>My Participations</Tab>
+            <Tab>My Created Ads</Tab>
           </TabList>
           <TabPanels>
             <TabPanel><ViewAds /></TabPanel>
             <TabPanel><MyParticipations /></TabPanel>
+            <TabPanel><MyCreatedAds /></TabPanel>
           </TabPanels>
         </Tabs>
       </Box>

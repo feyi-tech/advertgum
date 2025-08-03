@@ -10,9 +10,7 @@ import {
   Image,
 } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
-
-// TODO: User needs to provide their public R2 URL
-const R2_PUBLIC_URL = 'https://<YOUR_PUBLIC_R2_URL>';
+import config from '../config';
 
 const MyParticipations = () => {
   const { user } = useAuth();
@@ -53,7 +51,7 @@ const MyParticipations = () => {
           <Box key={ad.id} p={5} shadow="md" borderWidth="1px">
             <Heading fontSize="xl">{ad.title}</Heading>
             <Text mt={4}>{ad.description}</Text>
-            {ad.image1_url && <Image src={`${R2_PUBLIC_URL}/${ad.image1_url}`} alt={ad.title} my={4} />}
+            {ad.image1_url && <Image src={`${config.app.r2PublicUrl}/${ad.image1_url}`} alt={ad.title} my={4} />}
             <Tag>Ends: {new Date(ad.end_date).toLocaleDateString()}</Tag>
              {/* TODO: Add logic to show user's current click count for this ad */}
              <Text mt={2} fontWeight="bold">My Clicks: [Coming Soon]</Text>

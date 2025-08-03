@@ -1,11 +1,9 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 
-const FIREBASE_PROJECT_ID = 'YOUR_FIREBASE_PROJECT_ID'; // TODO: Replace with your Firebase project ID
 const JWKS_URL = 'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
-
 const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
 
-export const authenticate = async (request) => {
+export const authenticate = async (request, env) => {
   const authHeader = request.headers.get('Authorization');
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -13,11 +11,16 @@ export const authenticate = async (request) => {
   }
 
   const token = authHeader.substring(7);
+  const firebaseProjectId = env.FIREBASE_PROJECT_ID;
+
+  if (!firebaseProjectId) {
+    return { error: 'Firebase Project ID not configured on backend', status: 500 };
+  }
 
   try {
     const { payload } = await jwtVerify(token, JWKS, {
-      issuer: `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`,
-      audience: FIREBASE_PROJECT_ID,
+      issuer: `https://securetoken.google.com/${firebaseProjectId}`,
+      audience: firebaseProjectId,
     });
 
     return { userId: payload.sub };

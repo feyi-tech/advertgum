@@ -15,7 +15,13 @@ import {
   NumberInput,
   NumberInputField,
   SimpleGrid,
+  Text,
+  HStack,
+  Icon,
 } from '@chakra-ui/react';
+import { QuestionOutlineIcon } from '@chakra-ui/icons';
+import Swal from 'sweetalert2';
+import ImageUpload from './ImageUpload';
 import { useAuth } from '../context/AuthContext';
 
 const CreateAd = () => {
@@ -23,18 +29,7 @@ const CreateAd = () => {
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState([]);
-
-  const handleImageChange = (e) => {
-    if (e.target.files.length === 0) {
-      toast({ title: 'Please select at least one image.', status: 'warning', duration: 3000, position: 'top' });
-      return;
-    }
-    if (e.target.files.length > 3) {
-      toast({ title: 'You can upload a maximum of 3 images.', status: 'warning', duration: 3000, position: 'top' });
-      return;
-    }
-    setImages(Array.from(e.target.files));
-  };
+  const [previews, setPreviews] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -103,16 +98,46 @@ const CreateAd = () => {
     }
   };
 
+  const showInfo = (title, text) => {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: 'info',
+      confirmButtonColor: '#4299E1' // brand.500
+    });
+  };
+
   return (
     <Box as="form" onSubmit={handleSubmit} bg="white" p={{base: 4, md: 8}} borderRadius="lg" shadow="md">
       <Stack spacing={6}>
-        <Heading as="h1" size="lg" color="brand.800">Create Your Ad Campaign</Heading>
+        <Box>
+          <Heading as="h1" size="lg" color="brand.800">Create Your Ad Campaign</Heading>
+          <Text mt={2} color="gray.500">
+            Fill out the details below. Click the <Icon as={QuestionOutlineIcon} /> icon for more information about each field.
+          </Text>
+        </Box>
         <Divider />
 
         <VStack spacing={4} align="stretch">
           <Heading as="h2" size="md" color="gray.600">1. Ad Details</Heading>
-          <FormControl isRequired><FormLabel>Title</FormLabel><Input name="title" placeholder="e.g. My Awesome Product Launch" /></FormControl>
-          <FormControl isRequired><FormLabel>Description</FormLabel><Textarea name="description" placeholder="Describe your product or service..." /></FormControl>
+          <FormControl isRequired>
+            <FormLabel>
+              <HStack>
+                <Text>Title</Text>
+                <Icon as={QuestionOutlineIcon} cursor="pointer" onClick={() => showInfo('Ad Title', 'This is the main headline of your ad. Make it catchy and descriptive.')} />
+              </HStack>
+            </FormLabel>
+            <Input name="title" placeholder="e.g. My Awesome Product Launch" />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>
+               <HStack>
+                <Text>Description</Text>
+                <Icon as={QuestionOutlineIcon} cursor="pointer" onClick={() => showInfo('Ad Description', 'Provide a detailed description of your product, service, or event. This is what will convince users to click.')} />
+              </HStack>
+            </FormLabel>
+            <Textarea name="description" placeholder="Describe your product or service..." />
+          </FormControl>
           <FormControl isRequired><FormLabel>Destination URL</FormLabel><Input name="destinationUrl" type="url" placeholder="https://your-website.com" /></FormControl>
           <FormControl isRequired>
             <FormLabel>Call to Action Text</FormLabel>
@@ -144,7 +169,10 @@ const CreateAd = () => {
             <FormControl isRequired><FormLabel>Start Date</FormLabel><Input name="startDate" type="date" /></FormControl>
             <FormControl isRequired><FormLabel>End Date</FormLabel><Input name="endDate" type="date" /></FormControl>
           </SimpleGrid>
-          <FormControl isRequired><FormLabel>Ad Images (up to 3)</FormLabel><Input type="file" accept="image/*" multiple onChange={handleImageChange} p={1.5} border="1px" borderColor="gray.200" borderRadius="md" /></FormControl>
+          <FormControl isRequired>
+            <FormLabel>Ad Images</FormLabel>
+            <ImageUpload onFilesAccepted={setImages} previews={previews} setPreviews={setPreviews} />
+          </FormControl>
         </VStack>
 
         <Divider />

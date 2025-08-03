@@ -334,6 +334,70 @@ export default {
       }
     }
 
+    // Add prizes to an advert
+    const addPrizesMatch = url.pathname.match(/^\/api\/adverts\/([a-zA-Z0-9]+)\/add-prizes$/);
+    if (addPrizesMatch && request.method === 'POST') {
+      const advertId = addPrizesMatch[1];
+      const { userId, error, status } = await authenticate(request, env);
+      if (error) {
+        return new Response(JSON.stringify({ error }), { status });
+      }
+
+      try {
+        const ad = await env.DB.prepare('SELECT * FROM adverts WHERE id = ?1').bind(advertId).first();
+        if (!ad) {
+          return new Response(JSON.stringify({ error: 'Advert not found' }), { status: 404 });
+        }
+        if (ad.creator_id !== userId) {
+          return new Response(JSON.stringify({ error: 'You are not the creator of this ad' }), { status: 403 });
+        }
+
+        const { prize1, prize2, prize3, prize4 } = await request.json();
+        const additionalPrize = (prize1 - ad.prize1) + (prize2 - ad.prize2) + (prize3 - ad.prize3) + (prize4 - ad.prize4);
+
+        if (additionalPrize <= 0) {
+            return new Response(JSON.stringify({ error: 'New prize amounts must be greater than current amounts.' }), { status: 400 });
+        }
+
+        const wallet = await env.DB.prepare('SELECT * FROM wallets WHERE user_id = ?1').bind(userId).first();
+        if (!wallet || wallet.balance < additionalPrize) {
+          return new Response(JSON.stringify({ error: 'Insufficient funds.' }), { status: 400 });
+        }
+
+        const newBalance = wallet.balance - additionalPrize;
+        const now = Date.now();
+        await env.DB.prepare('UPDATE wallets SET balance = ?1, updated_at = ?2 WHERE id = ?3').bind(newBalance, now, wallet.id).run();
+        await env.DB.prepare('INSERT INTO transactions (id, wallet_id, amount, type, description, created_at) VALUES (?, ?, ?, ?, ?, ?)')
+          .bind(createId(), wallet.id, -additionalPrize, 'ad_spend', `Prize top-up for: ${ad.title}`, now).run();
+
+        await env.DB.prepare('UPDATE adverts SET prize1 = ?1, prize2 = ?2, prize3 = ?3, prize4 = ?4 WHERE id = ?5')
+            .bind(prize1, prize2, prize3, prize4, advertId).run();
+
+        return new Response(JSON.stringify({ success: true }), { status: 200 });
+      } catch (err) {
+        console.error(err);
+        return new Response(JSON.stringify({ error: 'Failed to add prizes' }), { status: 500 });
+      }
+    }
+
+    // Get user's created ads
+    if (url.pathname === '/api/users/created-ads' && request.method === 'GET') {
+      const { userId, error, status } = await authenticate(request, env);
+      if (error) {
+        return new Response(JSON.stringify({ error }), { status });
+      }
+
+      try {
+        const { results } = await env.DB.prepare('SELECT * FROM adverts WHERE creator_id = ?1 ORDER BY created_at DESC')
+          .bind(userId)
+          .all();
+        return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
+      } catch (err) {
+        console.error(err);
+        return new Response(JSON.stringify({ error: 'Failed to fetch created ads' }), { status: 500 });
+      }
+    }
+
     // Get user's participations
     if (url.pathname === '/api/users/participations' && request.method === 'GET') {
       const { userId, error, status } = await authenticate(request, env);
