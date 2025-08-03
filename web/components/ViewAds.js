@@ -19,10 +19,8 @@ import {
   ButtonGroup,
 } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
-
-// TODO: User needs to provide their public R2 URL
-const R2_PUBLIC_URL = 'https://<YOUR_PUBLIC_R2_URL>';
-const APP_URL = 'http://localhost:3000'; // Or your actual app URL
+import config from '../config';
+import NextLink from 'next/link';
 
 const ViewAds = () => {
   const { user } = useAuth();
@@ -33,7 +31,6 @@ const ViewAds = () => {
   const [minPrize, setMinPrize] = useState('');
   const [maxPrize, setMaxPrize] = useState('');
   const [loading, setLoading] = useState(false);
-  const [referralLinks, setReferralLinks] = useState({});
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -56,21 +53,6 @@ const ViewAds = () => {
     };
     fetchAds();
   }, [status, category, minPrize, maxPrize, toast]);
-
-  const handleGetLink = async (advertId) => {
-    const token = await user.getIdToken();
-    try {
-      const res = await fetch(`/api/adverts/${advertId}/participate`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const { unique_code } = await res.json();
-      const link = `${APP_URL}/?ref=${unique_code}&ad=${advertId}`;
-      setReferralLinks(prev => ({ ...prev, [advertId]: link }));
-    } catch (error) {
-      toast({ title: 'Error getting link', description: error.message, status: 'error' });
-    }
-  };
 
   const handleViewResults = async (advertId) => {
     try {
@@ -117,20 +99,14 @@ const ViewAds = () => {
       ) : (
         <VStack spacing={4} align="stretch">
           {ads.map(ad => (
-            <Box key={ad.id} p={5} shadow="md" borderWidth="1px">
-              <Heading fontSize="xl">{ad.title}</Heading>
-              <Text mt={4}>{ad.description}</Text>
-              {ad.image1_url && <Image src={`${R2_PUBLIC_URL}/${ad.image1_url}`} alt={ad.title} my={4} />}
-              <Tag>Starts: {new Date(ad.start_date).toLocaleDateString()}</Tag>
-              <Tag ml={2}>Ends: {new Date(ad.end_date).toLocaleDateString()}</Tag>
-              {status === 'active' && (
-                <Box mt={4}>
-                  <Button size="sm" onClick={() => handleGetLink(ad.id)}>Get My Link</Button>
-                  {referralLinks[ad.id] && <Input readOnly value={referralLinks[ad.id]} mt={2} />}
-                </Box>
-              )}
-              {status === 'expired' && <Button mt={4} size="sm" onClick={() => handleViewResults(ad.id)}>View Results</Button>}
-            </Box>
+            <NextLink href={`/dashboard/ad/${ad.id}`} key={ad.id} passHref>
+              <Box as="a" p={5} shadow="md" borderWidth="1px" _hover={{ shadow: 'lg', transform: 'translateY(-2px)' }} transition="all 0.2s">
+                <Heading fontSize="xl">{ad.title}</Heading>
+                <Text mt={4} noOfLines={2}>{ad.description}</Text>
+                <Tag mt={4}>{ad.category}</Tag>
+                {status === 'expired' && <Button mt={4} size="sm" onClick={(e) => { e.preventDefault(); handleViewResults(ad.id); }}>View Results</Button>}
+              </Box>
+            </NextLink>
           ))}
           {ads.length === 0 && <Text>No ads in this category.</Text>}
         </VStack>
