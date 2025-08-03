@@ -1,12 +1,9 @@
-import { useEffect } from "react";
-import "./App.css";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import AuthDetails from "./components/AuthDetails";
-import CreateAd from "./components/CreateAd";
-import ViewAds from "./components/ViewAds";
+import { useEffect } from 'react';
+import '@/styles/globals.css'
+import { ChakraProvider } from '@chakra-ui/react'
+import { AuthProvider } from '../context/AuthContext'
 
-function App() {
+export default function App({ Component, pageProps }) {
   useEffect(() => {
     const handleReferral = async () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -23,7 +20,6 @@ function App() {
         } catch (error) {
           console.error('Failed to record click:', error);
         } finally {
-          // Clean the URL
           window.history.replaceState(null, '', window.location.pathname);
         }
       }
@@ -33,17 +29,10 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <AuthDetails />
-      <hr />
-      <Login />
-      <Register />
-      <hr />
-      <CreateAd />
-      <hr />
-      <ViewAds />
-    </div>
-  );
+    <ChakraProvider>
+      <AuthProvider>
+        <Component {...pageProps} />
+      </AuthProvider>
+    </ChakraProvider>
+  )
 }
-
-export default App;
