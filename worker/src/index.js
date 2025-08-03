@@ -42,14 +42,36 @@ export default {
         const adData = await request.json();
         const adId = createId();
 
+        // --- Wallet and Transaction Logic ---
+        const totalPrize = adData.prize1 + adData.prize2 + adData.prize3 + adData.prize4;
+        const wallet = await env.DB.prepare('SELECT * FROM wallets WHERE user_id = ?1').bind(userId).first();
+
+        if (!wallet || wallet.balance < totalPrize) {
+          return new Response(JSON.stringify({ error: 'Insufficient funds. Please fund your wallet.' }), { status: 400 });
+        }
+
+        const newBalance = wallet.balance - totalPrize;
+        const now = Date.now();
+        const transactionId = createId();
+
+        // D1 doesn't have transactions, so we perform operations sequentially.
+        await env.DB.prepare('UPDATE wallets SET balance = ?1, updated_at = ?2 WHERE id = ?3')
+          .bind(newBalance, now, wallet.id)
+          .run();
+
+        await env.DB.prepare('INSERT INTO transactions (id, wallet_id, amount, type, description, created_at) VALUES (?, ?, ?, ?, ?, ?)')
+          .bind(transactionId, wallet.id, -totalPrize, 'ad_spend', `Ad Campaign: ${adData.title}`, now)
+          .run();
+        // --- End Wallet Logic ---
+
         // Basic validation
         if (!adData.title || !adData.description || !adData.imageKeys || adData.imageKeys.length === 0) {
           return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
         }
 
         await env.DB.prepare(
-          `INSERT INTO adverts (id, title, description, youtube_link, start_date, end_date, prize1, prize2, prize3, prize4, min_clicks, creator_id, created_at, image1_url, image2_url, image3_url)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          `INSERT INTO adverts (id, title, description, youtube_link, start_date, end_date, prize1, prize2, prize3, prize4, min_clicks, creator_id, created_at, image1_url, image2_url, image3_url, destination_url, cta_text)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
           .bind(
             adId,
@@ -67,7 +89,9 @@ export default {
             Date.now(),
             adData.imageKeys[0],
             adData.imageKeys[1] || null,
-            adData.imageKeys[2] || null
+            adData.imageKeys[2] || null,
+            adData.destinationUrl,
+            adData.ctaText
           )
           .run();
 
@@ -76,6 +100,22 @@ export default {
         console.error(err);
         return new Response(JSON.stringify({ error: 'Failed to create advert' }), { status: 500 });
       }
+    }
+
+    // Get single advert
+    const singleAdMatch = url.pathname.match(/^\/api\/adverts\/([a-zA-Z0-9]+)$/);
+    if (singleAdMatch && request.method === 'GET') {
+        const advertId = singleAdMatch[1];
+        try {
+            const ad = await env.DB.prepare('SELECT * FROM adverts WHERE id = ?1').bind(advertId).first();
+            if (!ad) {
+                return new Response(JSON.stringify({ error: 'Advert not found' }), { status: 404 });
+            }
+            return new Response(JSON.stringify(ad), { headers: { 'Content-Type': 'application/json' } });
+        } catch (err) {
+            console.error(err);
+            return new Response(JSON.stringify({ error: 'Failed to fetch advert' }), { status: 500 });
+        }
     }
 
     // Get adverts
@@ -146,9 +186,25 @@ export default {
     // Track a click
     if (url.pathname === '/api/clicks' && request.method === 'POST') {
       try {
-        const { ref: uniqueCode, ad: advertId } = await request.json();
-        if (!uniqueCode || !advertId) {
-          return new Response(JSON.stringify({ error: 'Missing referral code or advert ID' }), { status: 400 });
+        const { ref: uniqueCode, ad: advertId, turnstileToken } = await request.json();
+
+        if (!uniqueCode || !advertId || !turnstileToken) {
+          return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
+        }
+
+        // Verify Turnstile token
+        const turnstileResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                secret: env.TURNSTILE_SECRET_KEY,
+                response: turnstileToken,
+            }),
+        });
+        const turnstileData = await turnstileResponse.json();
+
+        if (!turnstileData.success) {
+            return new Response(JSON.stringify({ error: 'Invalid Turnstile token' }), { status: 401 });
         }
 
         // Find participant by unique code
@@ -157,8 +213,12 @@ export default {
           .first();
 
         if (!participant) {
-          // Don't give away that the code is invalid, just fail silently
-          return new Response(JSON.stringify({ success: true }), { status: 200 });
+          return new Response(JSON.stringify({ error: 'Invalid referral link' }), { status: 400 });
+        }
+
+        const ad = await env.DB.prepare('SELECT destination_url FROM adverts WHERE id = ?1').bind(advertId).first();
+        if (!ad) {
+          return new Response(JSON.stringify({ error: 'Advert not found' }), { status: 404 });
         }
 
         const clickId = createId();
@@ -166,11 +226,10 @@ export default {
           .bind(clickId, advertId, participant.id, Date.now())
           .run();
 
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
+        return new Response(JSON.stringify({ destinationUrl: ad.destination_url }), { status: 200 });
       } catch (err) {
         console.error(err);
-        // Fail silently to the client
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
+        return new Response(JSON.stringify({ error: 'Failed to process click' }), { status: 500 });
       }
     }
 
@@ -229,6 +288,62 @@ export default {
       } catch (err) {
         console.error(err);
         return new Response(JSON.stringify({ error: 'Failed to calculate results' }), { status: 500 });
+      }
+    }
+
+    // Get wallet details
+    if (url.pathname === '/api/wallet' && request.method === 'GET') {
+      const { userId, error, status } = await authenticate(request, env);
+      if (error) {
+        return new Response(JSON.stringify({ error }), { status });
+      }
+
+      try {
+        // Find or create wallet
+        let wallet = await env.DB.prepare('SELECT * FROM wallets WHERE user_id = ?1').bind(userId).first();
+        if (!wallet) {
+          const walletId = createId();
+          const now = Date.now();
+          await env.DB.prepare('INSERT INTO wallets (id, user_id, balance, created_at, updated_at) VALUES (?, ?, ?, ?, ?)')
+            .bind(walletId, userId, 0, now, now)
+            .run();
+          wallet = { id: walletId, balance: 0 };
+        }
+
+        // Get transactions
+        const { results: transactions } = await env.DB.prepare('SELECT * FROM transactions WHERE wallet_id = ?1 ORDER BY created_at DESC')
+          .bind(wallet.id)
+          .all();
+
+        return new Response(JSON.stringify({ balance: wallet.balance, transactions }), {
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+      } catch (err) {
+        console.error(err);
+        return new Response(JSON.stringify({ error: 'Failed to fetch wallet details' }), { status: 500 });
+      }
+    }
+
+    // Get user's participations
+    if (url.pathname === '/api/users/participations' && request.method === 'GET') {
+      const { userId, error, status } = await authenticate(request, env);
+      if (error) {
+        return new Response(JSON.stringify({ error }), { status });
+      }
+
+      try {
+        const query = `
+          SELECT a.*
+          FROM adverts a
+          JOIN participants p ON a.id = p.advert_id
+          WHERE p.user_id = ?1;
+        `;
+        const { results } = await env.DB.prepare(query).bind(userId).all();
+        return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json' } });
+      } catch (err) {
+        console.error(err);
+        return new Response(JSON.stringify({ error: 'Failed to fetch participations' }), { status: 500 });
       }
     }
 
