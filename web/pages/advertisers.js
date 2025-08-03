@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Layout from '../components/Layout';
-import { Box, Heading, Text, Container, Stack, Flex, Icon, useColorModeValue } from '@chakra-ui/react';
+import { Box, Heading, Text, Container, Stack, Flex, Icon, useColorModeValue, HStack, VStack } from '@chakra-ui/react';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 
 const Feature = ({ title, text }) => {
