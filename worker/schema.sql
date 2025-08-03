@@ -17,7 +17,8 @@ CREATE TABLE adverts (
     image2_url TEXT,
     image3_url TEXT,
     destination_url TEXT NOT NULL,
-    cta_text TEXT NOT NULL
+    cta_text TEXT NOT NULL,
+    category TEXT NOT NULL
 );
 
 -- Participants Table

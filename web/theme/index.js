@@ -20,6 +20,31 @@ const theme = extendTheme({
     heading: `'Inter', sans-serif`,
     body: `'Inter', sans-serif`,
   },
+  styles: {
+    global: {
+      body: {
+        bg: 'white',
+        color: 'gray.800',
+      },
+    },
+  },
+  components: {
+    Button: {
+      baseStyle: {
+        fontWeight: 'bold',
+        borderRadius: 'full',
+      },
+      variants: {
+        solid: {
+          bg: 'brand.500',
+          color: 'white',
+          _hover: {
+            bg: 'brand.600',
+          },
+        },
+      },
+    },
+  },
 });
 
 export default theme;

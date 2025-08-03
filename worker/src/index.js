@@ -70,8 +70,8 @@ export default {
         }
 
         await env.DB.prepare(
-          `INSERT INTO adverts (id, title, description, youtube_link, start_date, end_date, prize1, prize2, prize3, prize4, min_clicks, creator_id, created_at, image1_url, image2_url, image3_url, destination_url, cta_text)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          `INSERT INTO adverts (id, title, description, youtube_link, start_date, end_date, prize1, prize2, prize3, prize4, min_clicks, creator_id, created_at, image1_url, image2_url, image3_url, destination_url, cta_text, category)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
           .bind(
             adId,
@@ -91,7 +91,8 @@ export default {
             adData.imageKeys[1] || null,
             adData.imageKeys[2] || null,
             adData.destinationUrl,
-            adData.ctaText
+            adData.ctaText,
+            adData.category
           )
           .run();
 
@@ -120,26 +121,34 @@ export default {
 
     // Get adverts
     if (url.pathname === '/api/adverts' && request.method === 'GET') {
-      const status = url.searchParams.get('status') || 'active';
-      const now = Date.now();
-      let query;
+      const { searchParams } = url;
+      const status = searchParams.get('status') || 'active';
+      const category = searchParams.get('category');
+      const minPrize1 = parseFloat(searchParams.get('minPrize1')) || 0;
+      const maxPrize1 = parseFloat(searchParams.get('maxPrize1')) || Infinity;
 
-      switch (status) {
-        case 'active':
-          query = 'SELECT * FROM adverts WHERE start_date <= ?1 AND end_date >= ?1';
-          break;
-        case 'expired':
-          query = 'SELECT * FROM adverts WHERE end_date < ?1';
-          break;
-        case 'upcoming':
-          query = 'SELECT * FROM adverts WHERE start_date > ?1';
-          break;
-        default:
-          return new Response(JSON.stringify({ error: 'Invalid status filter' }), { status: 400 });
+      const now = Date.now();
+      let query = 'SELECT * FROM adverts WHERE prize1 >= ?1 AND prize1 <= ?2';
+      const params = [minPrize1, maxPrize1];
+
+      if (status === 'active') {
+        query += ' AND start_date <= ?3 AND end_date >= ?3';
+        params.push(now);
+      } else if (status === 'expired') {
+        query += ' AND end_date < ?3';
+        params.push(now);
+      } else if (status === 'upcoming') {
+        query += ' AND start_date > ?3';
+        params.push(now);
+      }
+
+      if (category) {
+        query += ` AND category = ?${params.length + 1}`;
+        params.push(category);
       }
 
       try {
-        const { results } = await env.DB.prepare(query).bind(now).all();
+        const { results } = await env.DB.prepare(query).bind(...params).all();
         return new Response(JSON.stringify(results), {
           headers: { 'Content-Type': 'application/json' },
         });
